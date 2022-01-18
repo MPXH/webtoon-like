@@ -1,0 +1,5 @@
+# Redirection de l'intégralités des requêtes sur index.php
+RewriteEngine on
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^.*$ src/index.php [QSA,L]

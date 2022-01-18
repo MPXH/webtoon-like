@@ -1,0 +1,32 @@
+{
+    "name": "remib18/webtoon-like.api",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "WebtoonLike\\Api\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Rémi Bernard",
+            "email": "remib18@outlook.fr"
+        },
+        {
+            "name": "Gabey",
+            "email": ""
+        },
+        {
+            "name": "Yacine Hbada",
+            "email": ""
+        },
+        {
+            "name": "Ahmed-Youcef Hamza",
+            "email": ""
+        }
+    ],
+    "require": {
+        "psr/http-server-middleware": "^1.0",
+        "guzzlehttp/psr7": "^2.1",
+        "http-interop/response-sender": "^1.0"
+    }
+}
