@@ -81,3 +81,14 @@ class Dispatcher implements RequestHandlerInterface {
         $this->middlewares->enqueue($middleware);
     }
 
+    /**
+     * Ajoute une route au router
+     *
+     * @param RoutePathBuilder $path le path de la route
+     * @param AbstractRoute $route le gestionnaire de route
+     * @return void
+     */
+    public function pushRoute(RoutePathBuilder $path, AbstractRoute $route): void {
+        $this->router->register($path, $route);
+    }
+}
