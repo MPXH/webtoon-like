@@ -678,7 +678,7 @@ class Uri implements UriInterface
     private function filterPath($path): string
     {
         if (!is_string($path)) {
-            throw new \InvalidArgumentException('Path must be a string');
+            throw new \InvalidArgumentException('Routes must be a string');
         }
 
         return preg_replace_callback(

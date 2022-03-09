@@ -1,6 +1,6 @@
 <?php
 
-namespace WebtoonLike\Api\Core\MiddlewareManagement;
+namespace WebtoonLike\Api\Core\Dispatcher;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;

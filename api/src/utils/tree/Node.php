@@ -2,31 +2,19 @@
 
 namespace WebtoonLike\Api\Utils\Tree;
 
-use Iterator;
+use JetBrains\PhpStorm\Pure;
 
-class Node implements NodeInterface, Iterator
+class Node implements NodeInterface
 {
 
-    private int $iteratorNext = 0;
-
     /**
-     * @param mixed $value
      * @param NodeInterface|null $directAncestor
-     * @param NodeInterface[]|null $directDescendants
+     * @param NodeInterface[] $directDescendants
      */
     public function __construct(
-        private mixed          $value,
         private ?NodeInterface $directAncestor,
         private array          $directDescendants = []
     ) {}
-
-    /**
-     * @inheritDoc
-     */
-    public function current(): NodeInterface
-    {
-        return $this->getDescendants()[$this->iteratorNext];
-    }
 
     /**
      * @inheritDoc
@@ -38,46 +26,6 @@ class Node implements NodeInterface, Iterator
             $arr = array_merge_recursive($arr, [$node, ...$node->getDescendants()]);
         }
         return $arr;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function next(): void
-    {
-        $this->iteratorNext++;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function key(): int
-    {
-        return $this->iteratorNext;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function valid(): bool
-    {
-        return isset($this->getDescendants()[$this->iteratorNext]);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function rewind(): void
-    {
-        $this->iteratorNext = 0;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setValue(mixed $value): void
-    {
-        $this->value = $value;
     }
 
     /**
@@ -108,6 +56,10 @@ class Node implements NodeInterface, Iterator
         return $this->directAncestor;
     }
 
+    #[Pure] public function hasDescendants(): bool {
+        return sizeof($this->getDirectDescendants()) > 0;
+    }
+
     /**
      * @inheritDoc
      */
@@ -127,36 +79,10 @@ class Node implements NodeInterface, Iterator
     /**
      * @inheritDoc
      */
-    public function appendDescendantFromArray(array $values): void
+    public function appendDescendant(?array $descendants, mixed $data): ?NodeInterface
     {
-        if ($values[0] !== $this->value && !isset($values[1])) return;
-        foreach ($this->directDescendants as $descendant) {
-            if ($values[1] === $descendant->getValue()) {
-                $descendant->appendDescendantFromArray(array_slice($values, 1));
-                return;
-            }
-        }
-        $this->appendDescendant($values[1], array_slice($values, 1));
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getValue(): mixed
-    {
-        return $this->value;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function appendDescendant(mixed $value, ?array $descendants): ?NodeInterface
-    {
-        foreach ($this->directDescendants as $descendant) {
-            if ($descendant->getValue() === $value) return null;
-        }
-        $node = new Node($value, $this, $descendants);
-        $this->directDescendants[] = array_merge_recursive($this->directDescendants, $descendants);
+        $node = new Node($this, $descendants);
+        $this->directDescendants[] = $node;
         return $node;
     }
 
@@ -182,14 +108,6 @@ class Node implements NodeInterface, Iterator
     public function getAncestors(): array
     {
         return [...$this->directAncestor->getAncestors(), $this];
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function __toArray(): array
-    {
-        return [$this->value => $this->directDescendants];
     }
 
     /**

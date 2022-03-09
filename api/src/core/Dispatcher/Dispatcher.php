@@ -1,6 +1,6 @@
 <?php
 
-namespace WebtoonLike\Api\Core\MiddlewareManagement;
+namespace WebtoonLike\Api\Core\Dispatcher;
 
 use Exception;
 use GuzzleHttp\Psr7\Response;
@@ -10,7 +10,6 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use SplQueue;
 use WebtoonLike\Api\Core\Router\AbstractRoute;
-use WebtoonLike\Api\Core\Router\RoutePathBuilder;
 use WebtoonLike\Api\Core\Router\Router;
 
 /**
@@ -30,7 +29,7 @@ class Dispatcher implements RequestHandlerInterface {
      */
     public function __construct() {
         $this->middlewares = new SplQueue();
-        $this->router = new Router();
+        $this->router = Router::getRouter();
         $this->middlewares->enqueue($this->router);
     }
 
@@ -84,11 +83,10 @@ class Dispatcher implements RequestHandlerInterface {
     /**
      * Ajoute une route au router
      *
-     * @param RoutePathBuilder $path le path de la route
      * @param AbstractRoute $route le gestionnaire de route
      * @return void
      */
-    public function pushRoute(RoutePathBuilder $path, AbstractRoute $route): void {
-        $this->router->register($path, $route);
+    public function pushRoute(AbstractRoute $route): void {
+        $this->router->register($route);
     }
 }

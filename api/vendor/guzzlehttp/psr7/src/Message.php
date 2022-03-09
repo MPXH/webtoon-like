@@ -169,7 +169,7 @@ final class Message
     /**
      * Constructs a URI for an HTTP request message.
      *
-     * @param string $path    Path from the start-line
+     * @param string $path    Routes from the start-line
      * @param array  $headers Array of headers (each value an array).
      */
     public static function parseRequestUri(string $path, array $headers): string
