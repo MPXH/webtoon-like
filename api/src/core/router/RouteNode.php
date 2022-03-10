@@ -14,17 +14,17 @@ class RouteNode extends Node implements MiddlewareInterface
 {
 
     private string $path;
-    private Method $method;
+    private ?Method $method;
     private bool $dynamic;
 
     /**
      * @param string $path Le path de la route à créer
-     * @param Method $method La méthode de la route
+     * @param Method|null $method La méthode de la route
      * @param string|null $dynamicPattern Si le path contient un attribut dynamic (:nom), définit le pattern à appliquer
      * @param NodeInterface|null $directAncestor Le prédécesseur direct
      * @param array $directDescendants Les descendants directs
      */
-    public function __construct(string $path, Method $method, ?string $dynamicPattern, ?NodeInterface $directAncestor, array $directDescendants = [])
+    public function __construct(string $path, ?Method $method, ?string $dynamicPattern, ?NodeInterface $directAncestor, array $directDescendants = [])
     {
         parent::__construct($directAncestor, $directDescendants);
         $this->dynamic = str_contains($path, ':');
@@ -53,11 +53,11 @@ class RouteNode extends Node implements MiddlewareInterface
      * Pour définir une route dynamique, utiliser la syntaxe /url/:nom
      *
      * @param string $path Le chemin absolu de la route
-     * @param Method $method LA méthode HTTP à utiliser
+     * @param Method|null $method LA méthode HTTP à utiliser
      * @param string|null $pattern Le pattern si la route est dynamique
      * @return RouteNode|null
      */
-    public function appendRoute(string $path, Method $method, ?string $pattern): ?RouteNode {
+    public function appendRoute(string $path, ?Method $method, ?string $pattern): ?RouteNode {
         $pathArr = mb_split('/', $path);
         if ($pathArr[0] === '') {
             array_shift($pathArr);
@@ -69,11 +69,11 @@ class RouteNode extends Node implements MiddlewareInterface
      * Ajoute une route de manière recursive
      *
      * @param array $path
-     * @param Method $method
+     * @param Method|null $method
      * @param string|null $pattern
      * @return RouteNode|null
      */
-    private function recursiveRouteInsertion(array $path, Method $method, ?string $pattern): ?RouteNode {
+    private function recursiveRouteInsertion(array $path, ?Method $method, ?string $pattern): ?RouteNode {
         if (sizeof($path) === 1) {
             return $this->appendDescendant(null, [
                 'path' => $path,
@@ -82,7 +82,17 @@ class RouteNode extends Node implements MiddlewareInterface
             ]);
         }
         $current = array_shift($path);
-        // Todo @remib18: finish it
+        foreach ($this->getDescendants() as $descendant) {
+            if ($descendant->getPath() === $current && $descendant->getMethod() === null) {
+                return $descendant->recursiveRouteInsertion($path, $method, $pattern);
+            }
+        }
+        $pre = $this->appendDescendant(null, [
+            'path' => $current,
+            'method' => null,
+            'dynamicPattern' => null
+        ]);
+        return $pre->recursiveRouteInsertion($path, $method, $pattern);
     }
 
     /**
@@ -93,9 +103,9 @@ class RouteNode extends Node implements MiddlewareInterface
      * @return NodeInterface|null
      *
      * Le paramètre <code>$data</code> doit contenir :
-     * - path => string
-     * - method => Method
-     * - dynamicPattern => string (regex pattern)
+     * - path → string
+     * - method → Method
+     * - dynamicPattern → string (regex pattern)
      */
     public function appendDescendant(?array $descendants, mixed $data): ?NodeInterface
     {
@@ -124,7 +134,8 @@ class RouteNode extends Node implements MiddlewareInterface
         $curent = array_shift($uri);
         foreach ($this->getDirectDescendants() as $descendant) {
             if ($descendant->getPath() === $curent) {
-                return $descendant->resolveTree($uri, $method, $request, $handler);
+                $res = $descendant->resolveTree($uri, $method, $request, $handler);
+                if ($res !== null) return $res;
             }
         }
         return null;

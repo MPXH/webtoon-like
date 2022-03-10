@@ -2,6 +2,7 @@
 
 namespace WebtoonLike\Api\Core\Router;
 
+use Method;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -18,9 +19,7 @@ class Router implements MiddlewareInterface {
 
     private function __construct()
     {
-        $baseRoute = new RouteNode(null, null);
-        $baseRoute->setData(null);
-        $this->routes = $baseRoute;
+        $this->routes = new RouteNode('', null, null, null, []);
         self::$router = $this;
     }
 
@@ -49,7 +48,7 @@ class Router implements MiddlewareInterface {
         try {
             $uri = RegexUtils::clearUrl($request->getUri()->getPath());
             $method = $this->getMethod($request->getMethod());
-            return $this->route($uri, $method, $request, $handler->handle($request));
+            return $this->route($uri, $method, $request, $handler);
         } catch (\Exception $e) {
             $response = $handler->handle($request);
             $response->withStatus(404, 'Not Found');
@@ -60,23 +59,26 @@ class Router implements MiddlewareInterface {
     /**
      * Enregistre une nouvelle route
      *
-     * @param AbstractRoute $route Gestionnaire de route en fonction des méthodes
+     * @param string $path Chemin absolu de la route
+     * @param Method $method Méthode HTTP
+     * @param string $dynamicPattern Si la route est dynamique, quel est la regex validant le pattern
      * @return void
      */
-    public function register(AbstractRoute $route): void {
+    public function register(string $path, Method $method, string $dynamicPattern): void {
         // TODO: Verify if the paths are unique
-        $this->routes->appendRoute($route);
+        $this->routes->appendRoute($path, $method, $dynamicPattern);
     }
 
     /**
      * Effectue le routage
-     * @param string $uri le chemin
-     * @param Method $method la méthode (GET, POST, PUT, DELETE, OPTIONS)
-     * @throws \Exception en cas de route non trouvé
+     * 
+     * @param string $uri Le chemin
+     * @param Method $method La méthode (GET, POST, PUT, DELETE, OPTIONS)
+     * @throws \Exception En cas de route non trouvé
      */
-    private function route(string $uri, Method $method, ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
+    private function route(string $uri, Method $method, ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $res = $this->routes->resolve($uri, $method, $request, $response, $this->routes);
+        $res = $this->routes->resolveTree(mb_split('/', $uri), $method, $request, $handler);
         if ($res) return $res;
 
         throw new \Exception('404: Not Found');
