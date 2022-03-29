@@ -2,7 +2,6 @@
 
 namespace WebtoonLike\Api\Core\Router;
 
-use Method;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -16,6 +15,7 @@ class RouteNode extends Node implements MiddlewareInterface
     private string $path;
     private ?Method $method;
     private bool $dynamic;
+    private MiddlewareInterface $handler;
 
     /**
      * @param string $path Le path de la route à créer
@@ -44,7 +44,7 @@ class RouteNode extends Node implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        return $handler->handle($request);
+        return $handler->process($request, $handler);
     }
 
     /**
@@ -54,7 +54,7 @@ class RouteNode extends Node implements MiddlewareInterface
      *
      * @param string $path Le chemin absolu de la route
      * @param Method|null $method LA méthode HTTP à utiliser
-     * @param string|null $pattern Le pattern si la route est dynamique
+     * @param string|null $pattern Le paterne si la route est dynamique
      * @return RouteNode|null
      */
     public function appendRoute(string $path, ?Method $method, ?string $pattern): ?RouteNode {
@@ -109,6 +109,10 @@ class RouteNode extends Node implements MiddlewareInterface
      */
     public function appendDescendant(?array $descendants, mixed $data): ?NodeInterface
     {
+        if ($descendants === null) $descendants = [];
+        if (is_array($data['path'])) {
+            $data['path'] = $data['path'][0];
+        }
         $node = new RouteNode($data['path'], $data['method'], $data['dynamicPattern'], $this, $descendants);
         $this->directDescendants[] = $node;
         return $node;

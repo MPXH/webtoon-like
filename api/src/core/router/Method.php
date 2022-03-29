@@ -1,5 +1,7 @@
 <?php
 
+namespace WebtoonLike\Api\Core\Router;
+
 enum Method {
     case GET;
     case POST;

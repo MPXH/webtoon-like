@@ -8,6 +8,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 use GuzzleHttp\Psr7\ServerRequest;
 use WebtoonLike\Api\Controllers\UserRoute;
 use WebtoonLike\Api\Core\Dispatcher\Dispatcher;
+use WebtoonLike\Api\Core\Router\Method;
 use function Http\Response\send;
 
 // TODO @gabey, @yacine, @hamza in ./api/composer.json: Ajouter mails / vérifier noms
@@ -22,6 +23,6 @@ $dispatcher = new Dispatcher();
 
 // $dispatcher->pushMiddleware();
 
-$dispatcher->pushRoute(new UserRoute());
+$dispatcher->pushRoute('/usr/:name', Method::GET, '^[a-zA-Z0-9\-_]*$', new UserRoute());
 
 send($dispatcher->handle(ServerRequest::fromGlobals()));

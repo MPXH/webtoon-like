@@ -10,6 +10,7 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use SplQueue;
 use WebtoonLike\Api\Core\Router\AbstractRoute;
+use WebtoonLike\Api\Core\Router\Method;
 use WebtoonLike\Api\Core\Router\Router;
 
 /**
@@ -67,9 +68,9 @@ class Dispatcher implements RequestHandlerInterface {
 
     /**
      * Ajoute un middleware à la file
-     * Le middleware à ajouter doit respecter soit le PSR7 soit le PSR15
+     * Le middleware à ajouter doit respecter soit le PSR7, soit le PSR15
      *
-     * @param MiddlewareInterface|callable $middleware le middleware à ajouter
+     * @param MiddlewareInterface|callable $middleware Le middleware à ajouter
      * @return void
      */
     public function pushMiddleware(MiddlewareInterface|callable $middleware): void
@@ -81,12 +82,15 @@ class Dispatcher implements RequestHandlerInterface {
     }
 
     /**
-     * Ajoute une route au router
+     * Ajoute une route au routeur
      *
-     * @param AbstractRoute $route le gestionnaire de route
+     * @param string $path Le chemin de la route
+     * @param Method $method La méthode HTTP
+     * @param string $dynamicPattern Le paterne pour les routes dynamiques
+     * @param MiddlewareInterface $handler Celui qui gère la requête
      * @return void
      */
-    public function pushRoute(AbstractRoute $route): void {
-        $this->router->register($route);
+    public function pushRoute(string $path, Method $method, string $dynamicPattern, MiddlewareInterface $handler): void {
+        $this->router->register($path, $method, $dynamicPattern, $handler);
     }
 }

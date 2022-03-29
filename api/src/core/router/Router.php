@@ -2,7 +2,6 @@
 
 namespace WebtoonLike\Api\Core\Router;
 
-use Method;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -62,9 +61,10 @@ class Router implements MiddlewareInterface {
      * @param string $path Chemin absolu de la route
      * @param Method $method Méthode HTTP
      * @param string $dynamicPattern Si la route est dynamique, quel est la regex validant le pattern
+     * @param MiddlewareInterface $handler Le traitement de la requête
      * @return void
      */
-    public function register(string $path, Method $method, string $dynamicPattern): void {
+    public function register(string $path, Method $method, string $dynamicPattern, MiddlewareInterface $handler): void {
         // TODO: Verify if the paths are unique
         $this->routes->appendRoute($path, $method, $dynamicPattern);
     }
