@@ -5,8 +5,8 @@ namespace WebtoonLike\Site;
 const SETTINGS = [
     'googleTranslateApi' => '',
     'preTranslateTo' => [
-        'fr-fr',
-        'en-us'
+        'fr',
+        'en'
     ],
     'database' => [
         'host' => 'localhost',
