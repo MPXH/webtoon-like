@@ -35,6 +35,7 @@ abstract class AbstractController {
 
     /**
      * Obtention de la ressource avec le nom correspondant.
+     *
      * @param string $name Nom rechercher
      * @return mixed
      */

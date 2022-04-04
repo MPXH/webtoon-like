@@ -7,6 +7,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 use WebtoonLike\Site\utils\PageUtils;
 
 $p = new PageUtils();
+
 ?>
 
 <!DOCTYPE html>
