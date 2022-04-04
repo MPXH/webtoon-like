@@ -14,6 +14,6 @@
 
 <section aria-describedby="#s1-title" id="app">
     <h2 id="s1-title">Oups, une erreur est survenue !</h2>
-    <p class="message"><?= $_GET['msg'] ?? 'Une erreur est survenue...' ?></p>
+    <p class="message"><?= urldecode($_GET['msg']) ?? 'Une erreur est survenue...' ?></p>
     <a href="/" class="button">Retour à l'accueil</a>
 </section>
