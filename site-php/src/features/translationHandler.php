@@ -2,34 +2,46 @@
 
 namespace WebtoonLike\Site\features;
 
+use JetBrains\PhpStorm\Pure;
 use function WebtoonLike\Site\getSettings;
 
 class translationHandler
 {
 
-    private static $googleApiKey = getSettings()['googleTranslateApi'];
-
     /**
-     * Retourne l'URL contenant la clef d'API, la query (texte a traduire), 
-     * la source (langue du texte) et la target (langue que l'on traduit vers).
-     * Cette fonction suppose qu'une clef d'API existe src/setting.php
+     * Retourne la requête construite
      *
+     * @param string $query Texte à traduire
+     * @param string $target Langue souhaiter
+     * @param string $source Langue du texte à traduire
      * @return string
      */
-    private function buildRequest($query, $target, $source=''): string {
-        $request = 'https://www.googleapis.com/language/translate/v2?key=' . self::$googleApiKey . '&q=' . rawurlencode($query) . '&source=' . $source . '&target=' . $target;
-        return $request;
+    #[Pure] private static function buildRequest(string $query, string $target, string $source): string {
+        $uri = 'https://www.googleapis.com/language/translate/v2';
+        $options = [
+            'key' => getSettings()['googleTranslateApi'],
+            'q' => rawurlencode($query),
+            'source' => $source,
+            'target' => $target
+        ];
+        $req = $uri . '?';
+        foreach ($options as $key => $value) {
+            $req .= $key . '=' . $value . '&';
+        }
+        return substr($req, 0, -1);
     }
 
     /**
-     * Retourne le text traduit vers une langue $target, l'API essaie de la deduire si non specificée.
-     * Cette fonction utilise la methode buildRequest pour construire l'URL. 
+     * Retourne le texte traduit vers la langue souhaitée
      *
      * @todo : utiliser curl pour appeler l'API
-     * @todo : Gerer les exceptions.
+     * @todo : Gérer les exceptions.
+     * @param string $source Langue du texte à traduire
+     * @param string $target Langue souhaiter
+     * @param string $query Texte à traduire
      * @return string
      */
-    public static function translate($source, $target, $query): string {
+    public static function translate(string $source, string $target, string $query): string {
         $request = self::buildRequest($source, $target, $query);
         # use curl from here.
         # ...
